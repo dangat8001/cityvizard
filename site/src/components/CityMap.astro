@@ -49,8 +49,13 @@
 
   const BOGOTA_CENTER = [-74.08, 4.65];
   // OpenFreeMap: tiles vectoriales gratuitos, sin API key ni límites de uso.
+  // "positron" es un estilo minimalista en gris/beige (sin azules de agua ni
+  // verdes de parques) pensado para resaltar datos propios superpuestos.
   // https://openfreemap.org
-  const BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
+  const BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/positron";
+
+  const CICLORUTAS_COLOR = "#ea580c"; // naranja, no se confunde con nada del basemap
+  const CICLORUTAS_LAYERS = ["ciclorutas-fill", "ciclorutas-line"];
 
   const map = new MapLibreMap({
     container: "map",
@@ -70,7 +75,18 @@
       id: "ciclorutas-fill",
       type: "fill",
       source: "ciclorutas",
-      paint: { "fill-color": "#2563eb", "fill-opacity": 0.6 },
+      paint: { "fill-color": CICLORUTAS_COLOR, "fill-opacity": 0.35 },
+    });
+    // Capa de línea con ancho fijo en píxeles: sin esto, los polígonos
+    // (delgados en la realidad) casi no se ven a escala de ciudad.
+    map.addLayer({
+      id: "ciclorutas-line",
+      type: "line",
+      source: "ciclorutas",
+      paint: {
+        "line-color": CICLORUTAS_COLOR,
+        "line-width": ["interpolate", ["linear"], ["zoom"], 10, 1, 16, 3],
+      },
     });
 
     const surfaceTypes = uniqueSurfaceTypes(geojson.features);
@@ -90,7 +106,10 @@
         } else {
           selected.delete(type);
         }
-        map.setFilter("ciclorutas-fill", buildSurfaceFilter([...selected]));
+        const filter = buildSurfaceFilter([...selected]);
+        for (const layerId of CICLORUTAS_LAYERS) {
+          map.setFilter(layerId, filter);
+        }
       });
       label.append(checkbox, document.createTextNode(type));
       legend.append(label);

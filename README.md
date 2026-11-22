@@ -153,7 +153,7 @@ Graph) llega en la Fase 6.
 - Datos geoespaciales: [IDECA](https://www.ideca.gov.co/) y
   [Datos Abiertos Bogotá](https://datosabiertos.bogota.gov.co/) (ciclorutas:
   IDU, CC BY 4.0).
-- Mapa base: [OpenFreeMap](https://openfreemap.org/) (estilo `liberty`,
+- Mapa base: [OpenFreeMap](https://openfreemap.org/) (estilo `positron`,
   datos de [OpenStreetMap](https://www.openstreetmap.org/copyright) vía
   [OpenMapTiles](https://www.openmaptiles.org/)) — gratuito, sin API key.
 
