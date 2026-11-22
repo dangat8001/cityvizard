@@ -92,8 +92,10 @@ reordenarse a medida que avanza el proyecto.
   a la que corresponde el cambio.
 - Para proponer una nueva capa de datos, abre un issue indicando la fuente
   oficial y su licencia/términos de uso.
-- En esta Fase 1 todavía no hay código ejecutable: las siguientes secciones se
-  completarán a medida que avance el proyecto.
+- **Todo archivo `.py` del proyecto debe tener tests** que lo acompañen, con
+  el objetivo de mantener 100% de cobertura (ver [`etl/README.md`](etl/README.md#tests-y-cobertura)
+  para el ejemplo de referencia). Esta regla aplica a cualquier módulo Python
+  futuro, no solo al ETL.
 
 ## Cómo ejecutar localmente
 
@@ -105,7 +107,7 @@ reordenarse a medida que avanza el proyecto.
 
 ```bash
 python3 -m venv .venv && source .venv/bin/activate
-pip install -r etl/requirements.txt
+pip install -r etl/requirements.txt -r etl/requirements-dev.txt
 ```
 
 ### Variables de entorno
@@ -117,6 +119,8 @@ valores reales todavía). El ETL actual no requiere ninguna.
 
 ```bash
 python3 etl/src/fetch_ciclorutas.py   # genera data/processed/ciclorutas.geojson
+
+cd etl && python -m pytest --cov=src --cov-report=term-missing   # tests + cobertura
 ```
 
 El resto de comandos (build/preview del frontend) se documentarán en la Fase 4.
