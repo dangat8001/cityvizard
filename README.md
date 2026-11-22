@@ -5,9 +5,8 @@ de interés para la ciudad, construida sobre un stack 100% gratuito.
 
 ## Estado del proyecto
 
-🚧 **Fase 3 en curso** — datos de ciclorutas actualizándose solos cada semana
-vía GitHub Actions. Todavía no hay mapa interactivo; ver el
-[roadmap](#roadmap-de-fases) abajo.
+🚧 **Fase 4 en curso** — primer mapa interactivo: ciclorutas de Bogotá
+filtrables por tipo de superficie. Ver el [roadmap](#roadmap-de-fases) abajo.
 
 ## ¿Qué es CityVizard?
 
@@ -40,7 +39,7 @@ El proyecto se apoya en tres capas, todas con costo prácticamente nulo:
    [GeoJSON/PMTiles en data/processed/]
          │
          ▼
-   [Sitio estático en site/ — Astro o HTML/JS + MapLibre GL JS]
+   [Sitio estático en site/ — Astro + MapLibre GL JS]
          │  (build)
          ▼
    [Cloudflare Pages / Vercel — CDN]
@@ -77,8 +76,8 @@ qué fase se completa: [`etl/`](etl/README.md), [`data/`](data/README.md),
 |---|---|---|
 | 1 ✅ | Fundamentos y documentación | README, estructura de carpetas, placeholders, ganchos de configuración |
 | 2 ✅ | ETL geoespacial en Python | `geopandas`/`requests`, `requirements.txt` real, primera capa funcional (ciclorutas), tests con 100% de cobertura |
-| 3 🚧 | Automatización con GitHub Actions | `ci.yml` (gate de tests) + `etl.yml` con cron semanal y commit automático de `data/processed/` — esta fase |
-| 4 | Frontend estático + MapLibre GL JS | Decisión Astro vs HTML/JS puro, visualización y filtros interactivos |
+| 3 ✅ | Automatización con GitHub Actions | `ci.yml` (gate de tests) + `etl.yml` con cron semanal y commit automático de `data/processed/` |
+| 4 🚧 | Frontend estático + MapLibre GL JS | Astro + MapLibre sobre OpenFreeMap, ciclorutas filtrables por tipo de superficie — esta fase |
 | 5 | Despliegue y dominio propio | Cloudflare Pages/Vercel, dominio personalizado, HTTPS |
 | 6 | SEO y monetización | `robots.txt`/`sitemap.xml` reales, meta tags/Open Graph, Google Analytics, Google AdSense |
 | 7 | Expansión | Nuevas ciudades, nuevas capas, UX avanzada (búsqueda, favoritos, export) |
@@ -101,13 +100,18 @@ reordenarse a medida que avanza el proyecto.
 
 ### Requisitos
 
-- Python 3.11+ (ETL). El frontend (Fase 4) aún no define requisitos.
+- Python 3.11+ (ETL).
+- Node.js 20+ (sitio/frontend).
 
 ### Instalación
 
 ```bash
+# ETL
 python3 -m venv .venv && source .venv/bin/activate
 pip install -r etl/requirements.txt -r etl/requirements-dev.txt
+
+# Sitio
+cd site && npm install
 ```
 
 ### Variables de entorno
@@ -119,8 +123,11 @@ valores reales todavía). El ETL actual no requiere ninguna.
 
 ```bash
 python3 etl/src/fetch_ciclorutas.py   # genera data/processed/ciclorutas.geojson
+cd etl && python -m pytest --cov=src --cov-report=term-missing   # tests + cobertura del ETL
 
-cd etl && python -m pytest --cov=src --cov-report=term-missing   # tests + cobertura
+cd site && npm run dev     # visor en http://localhost:4321
+cd site && npm run build   # build de producción en site/dist/
+cd site && npm run test:coverage   # tests + cobertura del frontend
 ```
 
 El resto de comandos (build/preview del frontend) se documentarán en la Fase 4.
@@ -144,9 +151,11 @@ Graph) llega en la Fase 6.
 ## Fuentes de datos y créditos
 
 - Datos geoespaciales: [IDECA](https://www.ideca.gov.co/) y
-  [Datos Abiertos Bogotá](https://datosabiertos.bogota.gov.co/).
-- Mapa base: [OpenStreetMap](https://www.openstreetmap.org/copyright) /
-  [Carto](https://carto.com/attributions).
+  [Datos Abiertos Bogotá](https://datosabiertos.bogota.gov.co/) (ciclorutas:
+  IDU, CC BY 4.0).
+- Mapa base: [OpenFreeMap](https://openfreemap.org/) (estilo `liberty`,
+  datos de [OpenStreetMap](https://www.openstreetmap.org/copyright) vía
+  [OpenMapTiles](https://www.openmaptiles.org/)) — gratuito, sin API key.
 
 Cada fuente exige su propia atribución visible; esto se documentará en detalle
 en [`data/README.md`](data/README.md) a medida que se integre cada capa.

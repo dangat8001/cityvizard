@@ -17,10 +17,13 @@ from tqdm import tqdm
 
 logger = logging.getLogger("etl.fetch_ciclorutas")
 
-LAYER_URL = (
+LAYER_BASE_URL = (
     "https://serviciosgis.catastrobogota.gov.co/arcgis/rest/services/"
-    "Mapa_Referencia/Mapa_Referencia/MapServer/18/query"
+    "Mapa_Referencia/Mapa_Referencia/MapServer/18"
 )
+LAYER_URL = f"{LAYER_BASE_URL}/query"
+SURFACE_FIELD = "CICTSUPERF"
+SURFACE_LABEL_FIELD = "tipo_superficie"
 PAGE_SIZE = 1000
 SIMPLIFY_TOLERANCE_DEG = 0.00005  # ~5 m en el ecuador, suficiente para un mapa web
 COORDINATE_PRECISION = 5  # ~1.1 m, reduce el peso del GeoJSON sin perder fidelidad visible
@@ -108,6 +111,25 @@ def fetch_all_features(total_count: int | None = None) -> gpd.GeoDataFrame:
     return gdf
 
 
+def get_surface_domain() -> dict[int, str]:
+    try:
+        response = requests.get(LAYER_BASE_URL, params={"f": "json"}, timeout=30)
+        response.raise_for_status()
+        fields = response.json()["fields"]
+        surface_field = next(f for f in fields if f["name"] == SURFACE_FIELD)
+        return {cv["code"]: cv["name"] for cv in surface_field["domain"]["codedValues"]}
+    except (requests.RequestException, ValueError, KeyError, StopIteration) as exc:
+        logger.error("No se pudo obtener el dominio de %s: %s", SURFACE_FIELD, exc)
+        raise
+
+
+def label_surface_types(gdf: gpd.GeoDataFrame, domain: dict[int, str]) -> gpd.GeoDataFrame:
+    logger.info("Etiquetando %s a partir del dominio del servicio", SURFACE_LABEL_FIELD)
+    gdf = gdf.copy()
+    gdf[SURFACE_LABEL_FIELD] = gdf[SURFACE_FIELD].map(domain).fillna("Desconocido")
+    return gdf
+
+
 def simplify(gdf: gpd.GeoDataFrame) -> gpd.GeoDataFrame:
     logger.info("Simplificando geometrías (tolerancia=%s°)", SIMPLIFY_TOLERANCE_DEG)
     gdf = gdf.copy()
@@ -120,6 +142,8 @@ def main() -> None:
     logger.info("Iniciando ETL de ciclorutas")
     try:
         gdf = fetch_all_features()
+        domain = get_surface_domain()
+        gdf = label_surface_types(gdf, domain)
         gdf = simplify(gdf)
         gdf.to_file(OUTPUT_PATH, driver="GeoJSON", COORDINATE_PRECISION=COORDINATE_PRECISION)
         logger.info("%s features escritas en %s", len(gdf), OUTPUT_PATH)

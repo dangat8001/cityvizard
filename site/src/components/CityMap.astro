@@ -1,0 +1,99 @@
+---
+---
+<div id="map"></div>
+<div id="legend" class="legend" hidden></div>
+
+<style>
+  #map {
+    position: absolute;
+    inset: 0;
+  }
+
+  .legend {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    z-index: 1;
+    background: rgba(255, 255, 255, 0.92);
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font: 14px/1.4 system-ui, sans-serif;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+    max-width: 220px;
+  }
+
+  .legend h2 {
+    margin: 0 0 0.5rem;
+    font-size: 14px;
+  }
+
+  .legend label {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    margin: 0.15rem 0;
+    cursor: pointer;
+  }
+</style>
+
+<script>
+  import { Map as MapLibreMap, NavigationControl, setWorkerUrl } from "maplibre-gl";
+  // Vite no emite el worker de maplibre-gl por su ruta esperada; hay que
+  // importarlo explícitamente y registrar su URL antes de crear el mapa.
+  // https://github.com/maplibre/maplibre-gl-js/issues (Vite + worker bundling)
+  import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
+  import "maplibre-gl/dist/maplibre-gl.css";
+  import { buildSurfaceFilter, uniqueSurfaceTypes } from "../lib/filters.js";
+
+  setWorkerUrl(maplibreWorkerUrl);
+
+  const BOGOTA_CENTER = [-74.08, 4.65];
+  // OpenFreeMap: tiles vectoriales gratuitos, sin API key ni límites de uso.
+  // https://openfreemap.org
+  const BASEMAP_STYLE = "https://tiles.openfreemap.org/styles/liberty";
+
+  const map = new MapLibreMap({
+    container: "map",
+    center: BOGOTA_CENTER,
+    zoom: 11,
+    style: BASEMAP_STYLE,
+  });
+
+  map.addControl(new NavigationControl(), "top-left");
+
+  map.on("load", async () => {
+    const response = await fetch("/data/ciclorutas.geojson");
+    const geojson = await response.json();
+
+    map.addSource("ciclorutas", { type: "geojson", data: geojson });
+    map.addLayer({
+      id: "ciclorutas-fill",
+      type: "fill",
+      source: "ciclorutas",
+      paint: { "fill-color": "#2563eb", "fill-opacity": 0.6 },
+    });
+
+    const surfaceTypes = uniqueSurfaceTypes(geojson.features);
+    const selected = new Set(surfaceTypes);
+    const legend = document.getElementById("legend");
+    legend.innerHTML = "<h2>Ciclorutas · tipo de superficie</h2>";
+    legend.hidden = false;
+
+    for (const type of surfaceTypes) {
+      const label = document.createElement("label");
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = true;
+      checkbox.addEventListener("change", () => {
+        if (checkbox.checked) {
+          selected.add(type);
+        } else {
+          selected.delete(type);
+        }
+        map.setFilter("ciclorutas-fill", buildSurfaceFilter([...selected]));
+      });
+      label.append(checkbox, document.createTextNode(type));
+      legend.append(label);
+    }
+  });
+</script>
