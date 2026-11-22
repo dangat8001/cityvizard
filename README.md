@@ -5,8 +5,9 @@ de interés para la ciudad, construida sobre un stack 100% gratuito.
 
 ## Estado del proyecto
 
-🚧 **Fase 5 en curso** — desplegando el visor en Cloudflare. Ver el
-[roadmap](#roadmap-de-fases) abajo.
+✅ **Fase 5 completada** — visor en vivo:
+[cityvizard.danielgaitanforero.workers.dev](https://cityvizard.danielgaitanforero.workers.dev).
+Pendiente conectar un dominio propio. Ver el [roadmap](#roadmap-de-fases) abajo.
 
 ## ¿Qué es CityVizard?
 
@@ -78,7 +79,7 @@ qué fase se completa: [`etl/`](etl/README.md), [`data/`](data/README.md),
 | 2 ✅ | ETL geoespacial en Python | `geopandas`/`requests`, `requirements.txt` real, primera capa funcional (ciclorutas), tests con 100% de cobertura |
 | 3 ✅ | Automatización con GitHub Actions | `ci.yml` (gate de tests) + `etl.yml` con cron semanal y commit automático de `data/processed/` |
 | 4 ✅ | Frontend estático + MapLibre GL JS | Astro + MapLibre sobre OpenFreeMap, ciclorutas filtrables por tipo de superficie |
-| 5 🚧 | Despliegue y dominio propio | Cloudflare Workers (assets estáticos) vía `wrangler.jsonc`, dominio personalizado, HTTPS — esta fase |
+| 5 ✅ | Despliegue | Cloudflare Workers (assets estáticos) vía `wrangler.jsonc`, en vivo en `*.workers.dev` con HTTPS. Dominio propio queda pendiente como mejora opcional, sin bloquear el roadmap |
 | 6 | SEO y monetización | `robots.txt`/`sitemap.xml` reales, meta tags/Open Graph, Google Analytics, Google AdSense |
 | 7 | Expansión | Nuevas ciudades, nuevas capas, UX avanzada (búsqueda, favoritos, export) |
 
