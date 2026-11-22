@@ -35,6 +35,9 @@ jobs:
       - name: Ejecutar ETL de ciclorutas
         run: python3 etl/src/fetch_ciclorutas.py
 
+      - name: Ejecutar ETL de población por UPZ
+        run: python3 etl/src/fetch_poblacion_upz.py
+
       - name: Commitear datos actualizados (si cambiaron)
         run: |
           git config user.name "github-actions[bot]"
@@ -43,6 +46,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "Sin cambios en los datos, no se commitea nada."
           else
-            git commit -m "chore(data): actualizar ciclorutas"
+            git commit -m "chore(data): actualizar capas de datos"
             git push
           fi

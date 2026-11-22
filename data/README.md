@@ -4,11 +4,12 @@ Almacenamiento estático de las capas geoespaciales del proyecto. No hay base
 de datos ni servidor: todo vive como archivos versionados (o ignorados, según
 el caso) dentro de este repositorio.
 
-**Estado actual (Fase 2):** primera capa procesada disponible.
+**Estado actual:** dos capas procesadas disponibles.
 
 | Capa | Archivo | Fuente | Licencia | Generado por |
 |---|---|---|---|---|
 | Ciclorutas Bogotá | `processed/ciclorutas.geojson` | [Datos Abiertos Bogotá — IDU](https://datosabiertos.bogota.gov.co/dataset/cicloruta-bogota-d-c) | CC BY 4.0 | `etl/src/fetch_ciclorutas.py` |
+| Población por UPZ (112 zonas, proyección 2026) | `processed/poblacion_upz.geojson` | Límites: Catastro Bogotá. Población: [SDP — Proyecciones y retroproyecciones de Población 2005-2035](https://datosabiertos.bogota.gov.co/dataset/proyecciones-y-retroproyecciones-de-poblacion-2005-2035) | CC BY 4.0 | `etl/src/fetch_poblacion_upz.py` |
 
 ## Convención de carpetas
 
