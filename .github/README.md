@@ -2,9 +2,9 @@
 
 **Estado actual (Fase 3 — Automatización con GitHub Actions):** dos workflows activos en `workflows/`.
 
-- **`ci.yml`** — gate de calidad: corre `pytest --cov=src` (100% de cobertura
-  requerido, ver [`etl/README.md`](../etl/README.md#tests-y-cobertura)) en
-  cada PR o push a `main` que toque `etl/**`.
+- **`ci.yml`** — gate de calidad: `test-etl` corre `pytest --cov=src` y
+  `test-site` corre `vitest run --coverage` (100% de cobertura requerido en
+  ambos) en cada PR o push a `main` que toque `etl/**` o `site/**`.
 - **`etl.yml`** — automatización de datos: cron semanal (lunes 06:00 UTC) +
   disparo manual (`workflow_dispatch`). Corre los mismos tests como gate,
   ejecuta `etl/src/fetch_ciclorutas.py` y, si el resultado cambió, commitea
