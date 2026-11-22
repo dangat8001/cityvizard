@@ -1,0 +1,36 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.mypy_cache/
+.pytest_cache/
+
+# Node / frontend
+node_modules/
+dist/
+.astro/
+.cache/
+
+# Variables de entorno (nunca versionar valores reales)
+.env
+.env.*.local
+!.env.example
+
+# Datos geoespaciales crudos/temporales (sí versionamos data/processed)
+data/raw/*
+!data/raw/.gitkeep
+!data/raw/README.md
+*.zip
+*.gpkg
+
+# Sistema operativo / editores
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+
+# Logs
+*.log

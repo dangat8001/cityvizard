@@ -1,0 +1,2 @@
+# Placeholder — ads.txt real se añadirá en Fase 6 (Monetización) una vez exista cuenta de AdSense aprobada.
+# Formato esperado: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0

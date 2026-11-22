@@ -1,0 +1,3 @@
+# Placeholder — se completará en Fase 6 (SEO) con reglas reales y referencia a sitemap.xml
+User-agent: *
+Allow: /
