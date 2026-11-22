@@ -2,9 +2,8 @@
 
 Frontend estático que renderiza los mapas interactivos.
 
-**Estado actual (Fase 4 — Frontend estático + MapLibre GL JS):** visor
-funcional con la primera capa (ciclorutas) y un filtro real por tipo de
-superficie.
+**Estado actual:** visor funcional con dos capas — ciclorutas (filtro por
+tipo de superficie) y población por UPZ en 3D.
 
 - **Generador de sitio:** [Astro](https://astro.build/) (`output: "static"`).
 - **Mapa:** [MapLibre GL JS](https://maplibre.org/) sobre el basemap vectorial
@@ -28,6 +27,15 @@ superficie.
   componente del mapa genera un checkbox por categoría y llama
   `map.setFilter(...)` sobre las dos capas (`ciclorutas-fill` y
   `ciclorutas-line`) al marcar/desmarcar.
+- **Población 3D:** `fetch('/data/poblacion_upz.geojson')` + una capa
+  `fill-extrusion` (`poblacion-upz-3d`), oculta por defecto detrás de un
+  checkbox "Población por UPZ (3D)" en la leyenda. Al activarlo, además
+  inclina el mapa (`map.easeTo({ pitch: 45 })`) para que la extrusión se
+  note. `src/lib/population.js` construye las expresiones de MapLibre:
+  altura = `poblacion_total` (interpolada linealmente a 0-4000 m según el
+  rango real de los datos) y color = `densidad_hab_ha` (ámbar claro → rojo
+  oscuro). Ambas funciones son puras y tienen su suite en
+  `population.test.js`.
 
 ## Ejecutar localmente
 

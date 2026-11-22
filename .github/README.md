@@ -7,7 +7,7 @@
   ambos) en cada PR o push a `main` que toque `etl/**` o `site/**`.
 - **`etl.yml`** — automatización de datos: cron semanal (lunes 06:00 UTC) +
   disparo manual (`workflow_dispatch`). Corre los mismos tests como gate,
-  ejecuta `etl/src/fetch_ciclorutas.py` y, si el resultado cambió, commitea
+  ejecuta los scripts en `etl/src/` y, si el resultado cambió, commitea
   y pushea `data/processed/` automáticamente a `main` como
   `github-actions[bot]`.
 

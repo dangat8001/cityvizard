@@ -5,9 +5,10 @@ de interés para la ciudad, construida sobre un stack 100% gratuito.
 
 ## Estado del proyecto
 
-✅ **Fase 5 completada** — visor en vivo:
-[cityvizard.danielgaitanforero.workers.dev](https://cityvizard.danielgaitanforero.workers.dev).
-Pendiente conectar un dominio propio. Ver el [roadmap](#roadmap-de-fases) abajo.
+✅ **Dos capas en vivo** —
+[cityvizard.danielgaitanforero.workers.dev](https://cityvizard.danielgaitanforero.workers.dev):
+ciclorutas filtrables y población por UPZ en 3D. Pendiente conectar un
+dominio propio. Ver el [roadmap](#roadmap-de-fases) abajo.
 
 ## ¿Qué es CityVizard?
 
@@ -20,8 +21,9 @@ sin depender de herramientas de pago.
 ## Alcance inicial (MVP)
 
 - **Cobertura geográfica:** únicamente Bogotá D.C. en esta primera etapa.
-- **Capas candidatas:** ciclorutas, sitios de interés, restaurantes, salud,
-  población (sujeto a disponibilidad y calidad de las fuentes abiertas).
+- **Capas candidatas:** ciclorutas ✅, población por UPZ (3D) ✅, sitios de
+  interés, restaurantes, salud (sujeto a disponibilidad y calidad de las
+  fuentes abiertas).
 - **Fuentes de datos previstas:**
   - [IDECA — Infraestructura de Datos Espaciales para el Distrito Capital](https://www.ideca.gov.co/)
   - [Datos Abiertos Bogotá](https://datosabiertos.bogota.gov.co/)
@@ -123,7 +125,8 @@ valores reales todavía). El ETL actual no requiere ninguna.
 ### Comandos
 
 ```bash
-python3 etl/src/fetch_ciclorutas.py   # genera data/processed/ciclorutas.geojson
+python3 etl/src/fetch_ciclorutas.py     # genera data/processed/ciclorutas.geojson
+python3 etl/src/fetch_poblacion_upz.py  # genera data/processed/poblacion_upz.geojson
 cd etl && python -m pytest --cov=src --cov-report=term-missing   # tests + cobertura del ETL
 
 cd site && npm run dev     # visor en http://localhost:4321
@@ -153,7 +156,8 @@ Graph) llega en la Fase 6.
 
 - Datos geoespaciales: [IDECA](https://www.ideca.gov.co/) y
   [Datos Abiertos Bogotá](https://datosabiertos.bogota.gov.co/) (ciclorutas:
-  IDU, CC BY 4.0).
+  IDU; población por UPZ: Secretaría Distrital de Planeación; límites UPZ:
+  Catastro Bogotá — todo CC BY 4.0).
 - Mapa base: [OpenFreeMap](https://openfreemap.org/) (estilo `positron`,
   datos de [OpenStreetMap](https://www.openstreetmap.org/copyright) vía
   [OpenMapTiles](https://www.openmaptiles.org/)) — gratuito, sin API key.

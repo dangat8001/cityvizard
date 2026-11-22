@@ -34,6 +34,16 @@
     margin: 0.15rem 0;
     cursor: pointer;
   }
+
+  .legend hr {
+    border: none;
+    border-top: 1px solid rgba(0, 0, 0, 0.12);
+    margin: 0.6rem 0;
+  }
+
+  .legend small {
+    color: #555;
+  }
 </style>
 
 <script>
@@ -44,6 +54,10 @@
   import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
   import "maplibre-gl/dist/maplibre-gl.css";
   import { buildSurfaceFilter, uniqueSurfaceTypes } from "../lib/filters.js";
+  import {
+    buildExtrusionColorExpression,
+    buildExtrusionHeightExpression,
+  } from "../lib/population.js";
 
   setWorkerUrl(maplibreWorkerUrl);
 
@@ -114,5 +128,38 @@
       label.append(checkbox, document.createTextNode(type));
       legend.append(label);
     }
+
+    const popResponse = await fetch("/data/poblacion_upz.geojson");
+    const popGeojson = await popResponse.json();
+
+    map.addSource("poblacion-upz", { type: "geojson", data: popGeojson });
+    map.addLayer({
+      id: "poblacion-upz-3d",
+      type: "fill-extrusion",
+      source: "poblacion-upz",
+      layout: { visibility: "none" },
+      paint: {
+        "fill-extrusion-height": buildExtrusionHeightExpression(popGeojson.features),
+        "fill-extrusion-color": buildExtrusionColorExpression(popGeojson.features),
+        "fill-extrusion-opacity": 0.85,
+      },
+    });
+
+    legend.append(document.createElement("hr"));
+    const popLabel = document.createElement("label");
+    const popCheckbox = document.createElement("input");
+    popCheckbox.type = "checkbox";
+    popCheckbox.checked = false;
+    popCheckbox.addEventListener("change", () => {
+      const visibility = popCheckbox.checked ? "visible" : "none";
+      map.setLayoutProperty("poblacion-upz-3d", "visibility", visibility);
+      map.easeTo({ pitch: popCheckbox.checked ? 45 : 0, duration: 500 });
+    });
+    popLabel.append(popCheckbox, document.createTextNode("Población por UPZ (3D)"));
+    legend.append(popLabel);
+
+    const popNote = document.createElement("small");
+    popNote.textContent = "Altura = población · color = densidad · proyección 2026 (SDP)";
+    legend.append(popNote);
   });
 </script>
