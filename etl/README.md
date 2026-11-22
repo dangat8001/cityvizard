@@ -58,7 +58,11 @@ Los tests no hacen llamadas de red reales: mockean `requests.get` (vía
 `monkeypatch`) para simular respuestas exitosas, errores HTTP/timeout con
 reintentos, y respuestas vacías o malformadas.
 
-**Qué llegará después (Fase 3 — Automatización):**
-- Este script será invocado periódicamente (cron semanal) por un workflow de
-  GitHub Actions definido en `.github/workflows/etl.yml`, que lo ejecutará y
-  hará commit automático de los resultados en `data/processed/`.
+## Automatización (Fase 3)
+
+Este script ya se ejecuta solo, sin intervención manual, vía
+[`.github/workflows/etl.yml`](../.github/workflows/etl.yml): cron semanal
+(lunes 06:00 UTC) + disparo manual (`workflow_dispatch`). El workflow corre
+los tests como gate de calidad, ejecuta el script y, si `data/processed/`
+cambió, lo commitea y pushea automáticamente a `main` como
+`github-actions[bot]`. Ver también [`.github/README.md`](../.github/README.md).

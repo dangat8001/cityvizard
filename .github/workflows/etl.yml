@@ -1,0 +1,48 @@
+name: ETL semanal
+
+on:
+  schedule:
+    - cron: "0 6 * * 1" # cada lunes 06:00 UTC
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: etl
+  cancel-in-progress: false
+
+jobs:
+  run-etl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: |
+            etl/requirements.txt
+            etl/requirements-dev.txt
+
+      - name: Instalar dependencias
+        run: pip install -r etl/requirements.txt -r etl/requirements-dev.txt
+
+      - name: Tests + cobertura (gate antes de tocar datos reales)
+        run: cd etl && python -m pytest --cov=src --cov-report=term-missing
+
+      - name: Ejecutar ETL de ciclorutas
+        run: python3 etl/src/fetch_ciclorutas.py
+
+      - name: Commitear datos actualizados (si cambiaron)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/processed/
+          if git diff --cached --quiet; then
+            echo "Sin cambios en los datos, no se commitea nada."
+          else
+            git commit -m "chore(data): actualizar ciclorutas"
+            git push
+          fi

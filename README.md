@@ -5,9 +5,9 @@ de interés para la ciudad, construida sobre un stack 100% gratuito.
 
 ## Estado del proyecto
 
-🚧 **Fase 2 en curso** — primera capa de datos funcional (ciclorutas de
-Bogotá). Todavía no hay mapa interactivo; ver el [roadmap](#roadmap-de-fases)
-abajo.
+🚧 **Fase 3 en curso** — datos de ciclorutas actualizándose solos cada semana
+vía GitHub Actions. Todavía no hay mapa interactivo; ver el
+[roadmap](#roadmap-de-fases) abajo.
 
 ## ¿Qué es CityVizard?
 
@@ -76,8 +76,8 @@ qué fase se completa: [`etl/`](etl/README.md), [`data/`](data/README.md),
 | Fase | Nombre | Contenido |
 |---|---|---|
 | 1 ✅ | Fundamentos y documentación | README, estructura de carpetas, placeholders, ganchos de configuración |
-| 2 🚧 | ETL geoespacial en Python | `geopandas`/`requests`, `requirements.txt` real, primera capa funcional (ciclorutas — esta fase) |
-| 3 | Automatización con GitHub Actions | Workflow `etl.yml` con cron periódico, commit automático de `data/processed/` |
+| 2 ✅ | ETL geoespacial en Python | `geopandas`/`requests`, `requirements.txt` real, primera capa funcional (ciclorutas), tests con 100% de cobertura |
+| 3 🚧 | Automatización con GitHub Actions | `ci.yml` (gate de tests) + `etl.yml` con cron semanal y commit automático de `data/processed/` — esta fase |
 | 4 | Frontend estático + MapLibre GL JS | Decisión Astro vs HTML/JS puro, visualización y filtros interactivos |
 | 5 | Despliegue y dominio propio | Cloudflare Pages/Vercel, dominio personalizado, HTTPS |
 | 6 | SEO y monetización | `robots.txt`/`sitemap.xml` reales, meta tags/Open Graph, Google Analytics, Google AdSense |
