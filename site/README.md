@@ -29,13 +29,24 @@ tipo de superficie) y población por UPZ en 3D.
   `ciclorutas-line`) al marcar/desmarcar.
 - **Población 3D:** `fetch('/data/poblacion_upz.geojson')` + una capa
   `fill-extrusion` (`poblacion-upz-3d`), oculta por defecto detrás de un
-  checkbox "Población por UPZ (3D)" en la leyenda. Al activarlo, además
-  inclina el mapa (`map.easeTo({ pitch: 45 })`) para que la extrusión se
-  note. `src/lib/population.js` construye las expresiones de MapLibre:
-  altura = `poblacion_total` (interpolada linealmente a 0-4000 m según el
-  rango real de los datos) y color = `densidad_hab_ha` (ámbar claro → rojo
-  oscuro). Ambas funciones son puras y tienen su suite en
-  `population.test.js`.
+  checkbox "Mostrar en el mapa (3D)". Al activarlo, además inclina el mapa
+  (`map.easeTo({ pitch: 45 })`) para que la extrusión se note.
+  `src/lib/population.js` construye las expresiones de MapLibre: altura =
+  `poblacion_total` (interpolada linealmente a 0-4000 m según el rango real
+  de los datos) y color = `densidad_hab_ha` (ámbar claro → rojo oscuro).
+  Todas las funciones son puras y tienen su suite en `population.test.js`.
+- **Layout:** `#map` (65%) + un panel lateral `.panel` (35%, scrollable) con
+  los controles — ya no hay una leyenda flotante encima del mapa.
+- **Tabla de UPZ:** el panel incluye una tabla ordenada por población
+  descendente, con la celda de densidad coloreada con la misma escala que la
+  capa 3D (`interpolateDensityColor`, misma función usada para construir la
+  expresión de MapLibre, ambas comparten los mismos colores/rango — ver
+  `src/lib/population.js`). Un `<select>` "Top N" (10/25/50/Todas) filtra a
+  la vez la tabla y el filtro de la capa 3D (`buildUpzFilter`), y hacer clic
+  en una fila centra el mapa en esa UPZ (`roughCentroid`, en
+  `src/lib/geo.js`, un centroide aproximado por promedio de vértices — no
+  geométricamente exacto, pero suficiente para un `flyTo`) y resalta su
+  contorno con una capa de línea auxiliar (`poblacion-upz-highlight`).
 
 ## Ejecutar localmente
 
@@ -49,10 +60,11 @@ npm run preview   # sirve dist/ localmente para probar el build de producción
 
 ## Tests
 
-Política del proyecto: todo código (no solo `.py`) debe tener tests. La
-lógica pura de filtrado vive en `src/lib/filters.js` y tiene su suite en
-`src/lib/filters.test.js` (Vitest), con 100% de cobertura exigido vía
-`vitest.config.mjs`. Los componentes `.astro` (markup + orquestación del mapa)
+Política del proyecto: todo código (no solo `.py`) debe tener tests. Toda la
+lógica pura (filtros de ciclorutas, expresiones/colores de población,
+centroide) vive en `src/lib/*.js` con su suite correspondiente en Vitest
+(`src/lib/*.test.js`), con 100% de cobertura exigido vía `vitest.config.mjs`.
+Los componentes `.astro` (markup + orquestación del mapa)
 no se cubren con tests unitarios — se verifican manualmente en el navegador
 (ver `npm run build && npm run preview`), igual que el `if __name__ == "__main__"`
 del ETL se excluye de cobertura: no hay forma razonable de testear WebGL/mapas
