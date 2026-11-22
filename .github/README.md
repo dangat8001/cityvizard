@@ -1,8 +1,8 @@
-# `.github/workflows/`
+# `.github/`
 
 **Estado actual:** vacío (Fase 1). No hay workflows reales todavía.
 
-**Qué llegará aquí:**
+**Qué llegará en `.github/workflows/`:**
 - **`etl.yml`** (Fase 3 — Automatización con GitHub Actions): ejecuta el
   script ETL de `etl/` con un cron semanal y hace commit automático de las
   capas resultantes en `data/processed/`.

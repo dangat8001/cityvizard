@@ -67,7 +67,7 @@ cityvizard/
 
 Cada carpeta tiene su propio `README.md` con el detalle de qué contiene y en
 qué fase se completa: [`etl/`](etl/README.md), [`data/`](data/README.md),
-[`site/`](site/README.md), [`.github/workflows/`](.github/workflows/README.md),
+[`site/`](site/README.md), [`.github/`](.github/README.md),
 [`docs/`](docs/README.md).
 
 ## Roadmap de fases
