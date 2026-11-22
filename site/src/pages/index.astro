@@ -1,0 +1,31 @@
+---
+import CityMap from "../components/CityMap.astro";
+
+const title = "CityVizard — visor geoespacial de Bogotá";
+const description =
+  "Visualiza y filtra capas geoespaciales de interés en Bogotá: ciclorutas, salud, población y más.";
+---
+
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <style is:global>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+      }
+    </style>
+  </head>
+  <body>
+    <main style="position:relative; width:100vw; height:100vh;">
+      <CityMap />
+    </main>
+  </body>
+</html>

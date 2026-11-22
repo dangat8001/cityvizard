@@ -1,0 +1,22 @@
+{
+  "name": "cityvizard-site",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "predev": "node scripts/copy-data.mjs",
+    "dev": "astro dev",
+    "prebuild": "node scripts/copy-data.mjs",
+    "build": "astro build",
+    "preview": "astro preview",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage"
+  },
+  "dependencies": {
+    "astro": "^7.4.13",
+    "maplibre-gl": "^6.19.0"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^5.1.1",
+    "vitest": "^5.1.1"
+  }
+}

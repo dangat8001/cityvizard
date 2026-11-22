@@ -14,6 +14,10 @@ node_modules/
 dist/
 .astro/
 .cache/
+coverage/
+
+# Copia generada de datos para servir el sitio (fuente real: data/processed/)
+site/public/data/
 
 # Variables de entorno (nunca versionar valores reales)
 .env

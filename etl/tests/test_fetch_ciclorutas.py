@@ -156,6 +156,63 @@ def test_fetch_all_features_no_results_logs_warning(monkeypatch, caplog):
     assert "No se descargaron features" in caplog.text
 
 
+# --- get_surface_domain / label_surface_types ---------------------------------
+
+
+def test_get_surface_domain_success(monkeypatch):
+    payload = {
+        "fields": [
+            {"name": "OBJECTID"},
+            {
+                "name": "CICTSUPERF",
+                "domain": {
+                    "codedValues": [
+                        {"code": 0, "name": "Sin dato"},
+                        {"code": 1, "name": "Concreto"},
+                    ]
+                },
+            },
+        ]
+    }
+    monkeypatch.setattr(
+        fetch_ciclorutas.requests, "get", lambda *a, **k: FakeResponse(payload)
+    )
+    assert fetch_ciclorutas.get_surface_domain() == {0: "Sin dato", 1: "Concreto"}
+
+
+def test_get_surface_domain_request_error_is_logged_and_raised(monkeypatch, caplog):
+    def raise_error(*a, **k):
+        raise requests.ConnectionError("boom")
+
+    monkeypatch.setattr(fetch_ciclorutas.requests, "get", raise_error)
+    with caplog.at_level(logging.ERROR, logger="etl.fetch_ciclorutas"):
+        with pytest.raises(requests.ConnectionError):
+            fetch_ciclorutas.get_surface_domain()
+    assert "No se pudo obtener el dominio" in caplog.text
+
+
+def test_get_surface_domain_missing_field_is_logged_and_raised(monkeypatch, caplog):
+    monkeypatch.setattr(
+        fetch_ciclorutas.requests,
+        "get",
+        lambda *a, **k: FakeResponse({"fields": [{"name": "OBJECTID"}]}),
+    )
+    with caplog.at_level(logging.ERROR, logger="etl.fetch_ciclorutas"):
+        with pytest.raises(StopIteration):
+            fetch_ciclorutas.get_surface_domain()
+    assert "No se pudo obtener el dominio" in caplog.text
+
+
+def test_label_surface_types_maps_known_and_unknown_codes():
+    gdf = gpd.GeoDataFrame({"CICTSUPERF": [1, 2, 99]})
+    domain = {1: "Concreto", 2: "Asfalto"}
+
+    result = fetch_ciclorutas.label_surface_types(gdf, domain)
+
+    assert result["tipo_superficie"].tolist() == ["Concreto", "Asfalto", "Desconocido"]
+    assert "tipo_superficie" not in gdf.columns  # la entrada original no se muta
+
+
 # --- simplify ------------------------------------------------------------------
 
 
@@ -196,6 +253,8 @@ def test_main_success_logs_and_writes_output(monkeypatch, caplog):
     monkeypatch.setattr(
         fetch_ciclorutas, "fetch_all_features", lambda: DummyGDF(3, recorder)
     )
+    monkeypatch.setattr(fetch_ciclorutas, "get_surface_domain", lambda: {})
+    monkeypatch.setattr(fetch_ciclorutas, "label_surface_types", lambda gdf, domain: gdf)
     monkeypatch.setattr(fetch_ciclorutas, "simplify", lambda gdf: gdf)
 
     with caplog.at_level(logging.INFO, logger="etl.fetch_ciclorutas"):
