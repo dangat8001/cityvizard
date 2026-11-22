@@ -54,6 +54,43 @@ defecto, causando `Worker failed to load` en producción. Se resuelve
 importando el worker con el sufijo `?url` y registrándolo con `setWorkerUrl()`
 antes de crear el mapa — ver el principio de `src/components/CityMap.astro`.
 
+## Despliegue (Fase 5 — Cloudflare)
+
+Cloudflare unificó "Pages" dentro de la plataforma "Workers": un sitio
+estático se despliega como un Worker *assets-only* (sin código de servidor),
+configurado por `wrangler.jsonc`:
+
+```jsonc
+{
+  "name": "cityvizard",
+  "compatibility_date": "2026-11-22",
+  "assets": { "directory": "./dist" }
+}
+```
+
+No requiere el adapter `@astrojs/cloudflare` (ese es solo para renderizado en
+servidor/on-demand; este sitio es 100% estático).
+
+**Conectado vía GitHub (Cloudflare dashboard → Workers & Pages → Connect GitHub):**
+- Root directory: `site`
+- Build command: `npm run build`
+- Deploy command: `npx wrangler deploy` (default, no tocar)
+- Variable de entorno `NODE_VERSION=20`
+
+**Manual desde la terminal:**
+
+```bash
+cd site
+npm run build
+npx wrangler deploy          # sube dist/ con la config de wrangler.jsonc
+npx wrangler deploy --dry-run  # valida sin subir nada
+```
+
+Se eligió Cloudflare sobre Vercel porque el plan gratuito de Vercel (Hobby)
+prohíbe explícitamente uso comercial en sus Términos de Servicio, lo cual
+entra en conflicto con el objetivo de monetización (Fase 6) del proyecto;
+Cloudflare no tiene esa restricción y da ancho de banda ilimitado gratis.
+
 ## `public/`
 
 Carpeta de archivos estáticos servidos tal cual, sin procesar por el build.

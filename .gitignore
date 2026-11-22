@@ -15,6 +15,7 @@ dist/
 .astro/
 .cache/
 coverage/
+.wrangler/
 
 # Copia generada de datos para servir el sitio (fuente real: data/processed/)
 site/public/data/
