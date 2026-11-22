@@ -8,18 +8,26 @@ superficie.
 
 - **Generador de sitio:** [Astro](https://astro.build/) (`output: "static"`).
 - **Mapa:** [MapLibre GL JS](https://maplibre.org/) sobre el basemap vectorial
-  gratuito de [OpenFreeMap](https://openfreemap.org/) (estilo `liberty`, sin
-  API key ni límites de uso). *Nota: el basemap raster de CARTO usado en el
-  borrador inicial ahora exige API key, por eso se migró a OpenFreeMap.*
+  gratuito de [OpenFreeMap](https://openfreemap.org/), estilo **`positron`**
+  (sin API key ni límites de uso). Se eligió `positron` sobre `liberty` porque
+  es minimalista en gris/beige — sin azules de agua ni verdes de parques que
+  compitan visualmente con nuestras propias capas de datos. *Nota: el basemap
+  raster de CARTO usado en el borrador inicial ahora exige API key, por eso se
+  migró a OpenFreeMap.*
 - **Datos:** `src/components/CityMap.astro` hace `fetch('/data/ciclorutas.geojson')`
   en el navegador. Ese archivo es una copia de `data/processed/ciclorutas.geojson`
   generada por `scripts/copy-data.mjs` (hook `predev`/`prebuild` de npm) — la
   fuente de verdad sigue siendo `data/processed/`, nunca se edita la copia.
+  Se renderiza con dos capas sobre la misma fuente: un `fill` naranja
+  translúcido y un `line` del mismo color con ancho fijo en píxeles (crece un
+  poco con el zoom) — sin la capa de línea, los polígonos reales (delgados)
+  casi no se distinguen a escala de ciudad.
 - **Filtro:** `src/lib/filters.js` expone `uniqueSurfaceTypes` (deriva las
   categorías de `tipo_superficie` presentes en el GeoJSON) y
   `buildSurfaceFilter` (construye la expresión de filtro de MapLibre). El
   componente del mapa genera un checkbox por categoría y llama
-  `map.setFilter(...)` al marcar/desmarcar.
+  `map.setFilter(...)` sobre las dos capas (`ciclorutas-fill` y
+  `ciclorutas-line`) al marcar/desmarcar.
 
 ## Ejecutar localmente
 
