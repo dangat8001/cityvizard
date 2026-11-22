@@ -62,7 +62,9 @@ defecto, causando `Worker failed to load` en producción. Se resuelve
 importando el worker con el sufijo `?url` y registrándolo con `setWorkerUrl()`
 antes de crear el mapa — ver el principio de `src/components/CityMap.astro`.
 
-## Despliegue (Fase 5 — Cloudflare)
+## Despliegue (Fase 5 — Cloudflare) ✅
+
+**En vivo:** https://cityvizard.danielgaitanforero.workers.dev
 
 Cloudflare unificó "Pages" dentro de la plataforma "Workers": un sitio
 estático se despliega como un Worker *assets-only* (sin código de servidor),
@@ -84,6 +86,11 @@ servidor/on-demand; este sitio es 100% estático).
 - Build command: `npm run build`
 - Deploy command: `npx wrangler deploy` (default, no tocar)
 - Variable de entorno `NODE_VERSION=20`
+
+> ⚠️ Si el build falla con `npm error enoent ... /opt/buildhome/repo/package.json`,
+> el campo **Root directory** no quedó en `site`. En un proyecto ya creado se
+> corrige en **Settings → Build** (no en el asistente inicial), guardando y
+> reintentando el deployment.
 
 **Manual desde la terminal:**
 
