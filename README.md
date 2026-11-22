@@ -5,8 +5,8 @@ de interés para la ciudad, construida sobre un stack 100% gratuito.
 
 ## Estado del proyecto
 
-🚧 **Fase 4 en curso** — primer mapa interactivo: ciclorutas de Bogotá
-filtrables por tipo de superficie. Ver el [roadmap](#roadmap-de-fases) abajo.
+🚧 **Fase 5 en curso** — desplegando el visor en Cloudflare. Ver el
+[roadmap](#roadmap-de-fases) abajo.
 
 ## ¿Qué es CityVizard?
 
@@ -42,7 +42,7 @@ El proyecto se apoya en tres capas, todas con costo prácticamente nulo:
    [Sitio estático en site/ — Astro + MapLibre GL JS]
          │  (build)
          ▼
-   [Cloudflare Pages / Vercel — CDN]
+   [Cloudflare Workers (assets estáticos) — CDN]
          │  (dominio propio)
          ▼
       Usuario final
@@ -77,8 +77,8 @@ qué fase se completa: [`etl/`](etl/README.md), [`data/`](data/README.md),
 | 1 ✅ | Fundamentos y documentación | README, estructura de carpetas, placeholders, ganchos de configuración |
 | 2 ✅ | ETL geoespacial en Python | `geopandas`/`requests`, `requirements.txt` real, primera capa funcional (ciclorutas), tests con 100% de cobertura |
 | 3 ✅ | Automatización con GitHub Actions | `ci.yml` (gate de tests) + `etl.yml` con cron semanal y commit automático de `data/processed/` |
-| 4 🚧 | Frontend estático + MapLibre GL JS | Astro + MapLibre sobre OpenFreeMap, ciclorutas filtrables por tipo de superficie — esta fase |
-| 5 | Despliegue y dominio propio | Cloudflare Pages/Vercel, dominio personalizado, HTTPS |
+| 4 ✅ | Frontend estático + MapLibre GL JS | Astro + MapLibre sobre OpenFreeMap, ciclorutas filtrables por tipo de superficie |
+| 5 🚧 | Despliegue y dominio propio | Cloudflare Workers (assets estáticos) vía `wrangler.jsonc`, dominio personalizado, HTTPS — esta fase |
 | 6 | SEO y monetización | `robots.txt`/`sitemap.xml` reales, meta tags/Open Graph, Google Analytics, Google AdSense |
 | 7 | Expansión | Nuevas ciudades, nuevas capas, UX avanzada (búsqueda, favoritos, export) |
 
