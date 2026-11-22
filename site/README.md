@@ -29,12 +29,20 @@ tipo de superficie) y población por UPZ en 3D.
   `ciclorutas-line`) al marcar/desmarcar.
 - **Población 3D:** `fetch('/data/poblacion_upz.geojson')` + una capa
   `fill-extrusion` (`poblacion-upz-3d`), oculta por defecto detrás de un
-  checkbox "Mostrar en el mapa (3D)". Al activarlo, además inclina el mapa
-  (`map.easeTo({ pitch: 45 })`) para que la extrusión se note.
-  `src/lib/population.js` construye las expresiones de MapLibre: altura =
-  `poblacion_total` (interpolada linealmente a 0-4000 m según el rango real
-  de los datos) y color = `densidad_hab_ha` (ámbar claro → rojo oscuro).
-  Todas las funciones son puras y tienen su suite en `population.test.js`.
+  checkbox "Mostrar en el mapa (3D)". `src/lib/population.js` construye las
+  expresiones de MapLibre: altura = `poblacion_total` (interpolada
+  linealmente a 0-4000 m según el rango real de los datos) y color =
+  `densidad_hab_ha` (ámbar claro → rojo oscuro). Todas las funciones son
+  puras y tienen su suite en `population.test.js`.
+- **Inclinación 3D libre:** un slider ("Inclinación 3D") deja al usuario
+  elegir el ángulo (0-60°, el `maxPitch` por defecto de MapLibre) en
+  cualquier momento — no queda fijo. Al activar el checkbox de población se
+  sugiere 45° *solo si el mapa sigue plano* (pitch 0), sin forzarlo si el
+  usuario ya lo ajustó. El mapa también se puede rotar/inclinar arrastrando
+  con clic derecho o Ctrl+clic (gesto nativo de MapLibre); un listener del
+  evento `map.on("pitch", ...)` mantiene el slider sincronizado sin importar
+  el método usado. `NavigationControl` se configura con `visualizePitch: true`
+  para que el ícono de la brújula refleje la inclinación actual.
 - **Layout:** `#map` (65%) + un panel lateral `.panel` (35%, scrollable) con
   los controles — ya no hay una leyenda flotante encima del mapa.
 - **Tabla de UPZ:** el panel incluye una tabla ordenada por población

@@ -15,6 +15,15 @@
         Mostrar en el mapa (3D)
       </label>
 
+      <div class="pitch-control">
+        <label for="pitch-slider">Inclinación 3D: <span id="pitch-value">0°</span></label>
+        <input type="range" id="pitch-slider" min="0" max="60" step="5" value="0" />
+        <small>
+          También puedes arrastrar el mapa con clic derecho (o Ctrl + clic)
+          para rotarlo e inclinarlo libremente.
+        </small>
+      </div>
+
       <div class="table-controls">
         <label for="top-n-select">Mostrar</label>
         <select id="top-n-select">
@@ -87,6 +96,27 @@
   .toggle-3d {
     margin-bottom: 0.75rem !important;
     font-weight: 600;
+  }
+
+  .pitch-control {
+    margin-bottom: 0.9rem;
+  }
+
+  .pitch-control label {
+    display: block;
+    margin-bottom: 0.25rem;
+    cursor: default;
+  }
+
+  .pitch-control input[type="range"] {
+    width: 100%;
+  }
+
+  .pitch-control small {
+    display: block;
+    margin-top: 0.2rem;
+    color: #777;
+    font-size: 12px;
   }
 
   .table-controls {
@@ -179,7 +209,28 @@
     style: BASEMAP_STYLE,
   });
 
-  map.addControl(new NavigationControl(), "top-left");
+  // visualizePitch añade al botón de la brújula un ícono 3D que refleja la
+  // inclinación actual del mapa.
+  map.addControl(new NavigationControl({ visualizePitch: true }), "top-left");
+
+  const pitchSlider = document.getElementById("pitch-slider");
+  const pitchValueLabel = document.getElementById("pitch-value");
+
+  function setPitch(value) {
+    map.easeTo({ pitch: value, duration: 300 });
+  }
+
+  pitchSlider.addEventListener("input", () => {
+    setPitch(Number(pitchSlider.value));
+  });
+
+  // El usuario también puede inclinar/rotar el mapa arrastrando con el
+  // mouse; este listener mantiene el slider sincronizado en ambos casos.
+  map.on("pitch", () => {
+    const current = Math.round(map.getPitch());
+    pitchSlider.value = String(current);
+    pitchValueLabel.textContent = `${current}°`;
+  });
 
   map.on("load", async () => {
     const response = await fetch("/data/ciclorutas.geojson");
@@ -302,7 +353,12 @@
     popToggle.addEventListener("change", () => {
       const visibility = popToggle.checked ? "visible" : "none";
       map.setLayoutProperty("poblacion-upz-3d", "visibility", visibility);
-      map.easeTo({ pitch: popToggle.checked ? 45 : 0, duration: 500 });
+      // Solo sugiere una inclinación inicial si el mapa sigue plano; si el
+      // usuario ya ajustó el ángulo (slider o arrastre), se respeta tal cual
+      // — la inclinación es libre y no depende de este checkbox.
+      if (popToggle.checked && map.getPitch() === 0) {
+        setPitch(45);
+      }
     });
 
     refresh();
