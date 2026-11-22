@@ -1,47 +1,174 @@
 ---
 ---
-<div id="map"></div>
-<div id="legend" class="legend" hidden></div>
+<div class="layout">
+  <div id="map"></div>
+  <aside class="panel">
+    <section class="panel-section">
+      <h2>Ciclorutas · tipo de superficie</h2>
+      <div id="surface-filters"></div>
+    </section>
+
+    <section class="panel-section">
+      <h2>Población por UPZ</h2>
+      <label class="toggle-3d">
+        <input type="checkbox" id="pop-toggle" />
+        Mostrar en el mapa (3D)
+      </label>
+
+      <div class="pitch-control">
+        <label for="pitch-slider">Inclinación 3D: <span id="pitch-value">0°</span></label>
+        <input type="range" id="pitch-slider" min="0" max="60" step="5" value="0" />
+        <small>
+          También puedes arrastrar el mapa con clic derecho (o Ctrl + clic)
+          para rotarlo e inclinarlo libremente.
+        </small>
+      </div>
+
+      <div class="table-controls">
+        <label for="top-n-select">Mostrar</label>
+        <select id="top-n-select">
+          <option value="10">Top 10 más pobladas</option>
+          <option value="25" selected>Top 25 más pobladas</option>
+          <option value="50">Top 50 más pobladas</option>
+          <option value="all">Todas (112)</option>
+        </select>
+      </div>
+
+      <div class="table-wrap">
+        <table id="upz-table">
+          <thead>
+            <tr>
+              <th>UPZ</th>
+              <th>Población</th>
+              <th>Densidad<br />(hab/ha)</th>
+            </tr>
+          </thead>
+          <tbody id="upz-table-body"></tbody>
+        </table>
+      </div>
+      <small>Proyección 2026 (SDP) · color de la columna = densidad · clic en
+        una fila para ubicarla en el mapa</small>
+    </section>
+  </aside>
+</div>
 
 <style>
-  #map {
+  .layout {
     position: absolute;
     inset: 0;
+    display: flex;
   }
 
-  .legend {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    z-index: 1;
-    background: rgba(255, 255, 255, 0.92);
-    padding: 0.75rem 1rem;
-    border-radius: 0.5rem;
+  #map {
+    flex: 0 0 65%;
+    min-width: 0;
+    position: relative;
+  }
+
+  .panel {
+    flex: 1 1 35%;
+    min-width: 280px;
+    overflow-y: auto;
+    background: #fff;
+    border-left: 1px solid rgba(0, 0, 0, 0.12);
     font: 14px/1.4 system-ui, sans-serif;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-    max-width: 220px;
+    padding: 1rem;
+    box-sizing: border-box;
   }
 
-  .legend h2 {
-    margin: 0 0 0.5rem;
-    font-size: 14px;
+  .panel-section {
+    margin-bottom: 1.5rem;
   }
 
-  .legend label {
+  .panel-section h2 {
+    margin: 0 0 0.6rem;
+    font-size: 15px;
+  }
+
+  .panel-section label {
     display: flex;
     align-items: center;
     gap: 0.4rem;
-    margin: 0.15rem 0;
+    margin: 0.2rem 0;
     cursor: pointer;
   }
 
-  .legend hr {
-    border: none;
-    border-top: 1px solid rgba(0, 0, 0, 0.12);
-    margin: 0.6rem 0;
+  .toggle-3d {
+    margin-bottom: 0.75rem !important;
+    font-weight: 600;
   }
 
-  .legend small {
+  .pitch-control {
+    margin-bottom: 0.9rem;
+  }
+
+  .pitch-control label {
+    display: block;
+    margin-bottom: 0.25rem;
+    cursor: default;
+  }
+
+  .pitch-control input[type="range"] {
+    width: 100%;
+  }
+
+  .pitch-control small {
+    display: block;
+    margin-top: 0.2rem;
+    color: #777;
+    font-size: 12px;
+  }
+
+  .table-controls {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.6rem;
+  }
+
+  .table-controls select {
+    flex: 1;
+    padding: 0.25rem;
+  }
+
+  .table-wrap {
+    max-height: 50vh;
+    overflow-y: auto;
+    border: 1px solid rgba(0, 0, 0, 0.12);
+    border-radius: 0.4rem;
+  }
+
+  #upz-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+
+  #upz-table th {
+    position: sticky;
+    top: 0;
+    background: #f3f3f1;
+    text-align: left;
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.12);
+  }
+
+  #upz-table td {
+    padding: 0.35rem 0.5rem;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  }
+
+  #upz-table tbody tr {
+    cursor: pointer;
+  }
+
+  #upz-table tbody tr:hover {
+    background: rgba(0, 0, 0, 0.04);
+  }
+
+  .panel-section small {
+    display: block;
+    margin-top: 0.5rem;
     color: #555;
   }
 </style>
@@ -54,9 +181,13 @@
   import maplibreWorkerUrl from "maplibre-gl/dist/maplibre-gl-worker.mjs?url";
   import "maplibre-gl/dist/maplibre-gl.css";
   import { buildSurfaceFilter, uniqueSurfaceTypes } from "../lib/filters.js";
+  import { roughCentroid } from "../lib/geo.js";
   import {
     buildExtrusionColorExpression,
     buildExtrusionHeightExpression,
+    buildUpzFilter,
+    interpolateDensityColor,
+    topNFeatures,
   } from "../lib/population.js";
 
   setWorkerUrl(maplibreWorkerUrl);
@@ -78,7 +209,28 @@
     style: BASEMAP_STYLE,
   });
 
-  map.addControl(new NavigationControl(), "top-left");
+  // visualizePitch añade al botón de la brújula un ícono 3D que refleja la
+  // inclinación actual del mapa.
+  map.addControl(new NavigationControl({ visualizePitch: true }), "top-left");
+
+  const pitchSlider = document.getElementById("pitch-slider");
+  const pitchValueLabel = document.getElementById("pitch-value");
+
+  function setPitch(value) {
+    map.easeTo({ pitch: value, duration: 300 });
+  }
+
+  pitchSlider.addEventListener("input", () => {
+    setPitch(Number(pitchSlider.value));
+  });
+
+  // El usuario también puede inclinar/rotar el mapa arrastrando con el
+  // mouse; este listener mantiene el slider sincronizado en ambos casos.
+  map.on("pitch", () => {
+    const current = Math.round(map.getPitch());
+    pitchSlider.value = String(current);
+    pitchValueLabel.textContent = `${current}°`;
+  });
 
   map.on("load", async () => {
     const response = await fetch("/data/ciclorutas.geojson");
@@ -105,9 +257,7 @@
 
     const surfaceTypes = uniqueSurfaceTypes(geojson.features);
     const selected = new Set(surfaceTypes);
-    const legend = document.getElementById("legend");
-    legend.innerHTML = "<h2>Ciclorutas · tipo de superficie</h2>";
-    legend.hidden = false;
+    const surfaceFilters = document.getElementById("surface-filters");
 
     for (const type of surfaceTypes) {
       const label = document.createElement("label");
@@ -126,11 +276,17 @@
         }
       });
       label.append(checkbox, document.createTextNode(type));
-      legend.append(label);
+      surfaceFilters.append(label);
     }
 
     const popResponse = await fetch("/data/poblacion_upz.geojson");
     const popGeojson = await popResponse.json();
+    const allFeatures = popGeojson.features;
+    const densityValues = allFeatures
+      .map((f) => f.properties.densidad_hab_ha)
+      .filter((v) => typeof v === "number");
+    const densityMin = Math.min(...densityValues);
+    const densityMax = Math.max(...densityValues);
 
     map.addSource("poblacion-upz", { type: "geojson", data: popGeojson });
     map.addLayer({
@@ -139,27 +295,72 @@
       source: "poblacion-upz",
       layout: { visibility: "none" },
       paint: {
-        "fill-extrusion-height": buildExtrusionHeightExpression(popGeojson.features),
-        "fill-extrusion-color": buildExtrusionColorExpression(popGeojson.features),
+        "fill-extrusion-height": buildExtrusionHeightExpression(allFeatures),
+        "fill-extrusion-color": buildExtrusionColorExpression(allFeatures),
         "fill-extrusion-opacity": 0.85,
       },
     });
-
-    legend.append(document.createElement("hr"));
-    const popLabel = document.createElement("label");
-    const popCheckbox = document.createElement("input");
-    popCheckbox.type = "checkbox";
-    popCheckbox.checked = false;
-    popCheckbox.addEventListener("change", () => {
-      const visibility = popCheckbox.checked ? "visible" : "none";
-      map.setLayoutProperty("poblacion-upz-3d", "visibility", visibility);
-      map.easeTo({ pitch: popCheckbox.checked ? 45 : 0, duration: 500 });
+    // Resalta una única UPZ al hacer clic en una fila de la tabla.
+    map.addLayer({
+      id: "poblacion-upz-highlight",
+      type: "line",
+      source: "poblacion-upz",
+      layout: { visibility: "none" },
+      filter: ["==", ["get", "codigo_upz"], "__none__"],
+      paint: { "line-color": "#111827", "line-width": 3 },
     });
-    popLabel.append(popCheckbox, document.createTextNode("Población por UPZ (3D)"));
-    legend.append(popLabel);
 
-    const popNote = document.createElement("small");
-    popNote.textContent = "Altura = población · color = densidad · proyección 2026 (SDP)";
-    legend.append(popNote);
+    const popToggle = document.getElementById("pop-toggle");
+    const topNSelect = document.getElementById("top-n-select");
+    const tableBody = document.getElementById("upz-table-body");
+
+    function applyTopNFilter(features) {
+      const codes = features.map((f) => f.properties.codigo_upz);
+      map.setFilter("poblacion-upz-3d", buildUpzFilter(codes));
+    }
+
+    function renderTable(features) {
+      tableBody.innerHTML = "";
+      for (const feature of features) {
+        const { codigo_upz, nombre, poblacion_total, densidad_hab_ha } = feature.properties;
+        const row = document.createElement("tr");
+        row.innerHTML = `
+          <td>${nombre}</td>
+          <td>${poblacion_total.toLocaleString("es-CO")}</td>
+          <td style="background-color:${interpolateDensityColor(densidad_hab_ha, densityMin, densityMax)}">
+            ${densidad_hab_ha.toFixed(1)}
+          </td>
+        `;
+        row.addEventListener("click", () => {
+          map.setLayoutProperty("poblacion-upz-highlight", "visibility", "visible");
+          map.setFilter("poblacion-upz-highlight", ["==", ["get", "codigo_upz"], codigo_upz]);
+          const center = roughCentroid(feature.geometry);
+          if (center) {
+            map.flyTo({ center, zoom: 13 });
+          }
+        });
+        tableBody.append(row);
+      }
+    }
+
+    function refresh() {
+      const visible = topNFeatures(allFeatures, topNSelect.value);
+      renderTable(visible);
+      applyTopNFilter(visible);
+    }
+
+    topNSelect.addEventListener("change", refresh);
+    popToggle.addEventListener("change", () => {
+      const visibility = popToggle.checked ? "visible" : "none";
+      map.setLayoutProperty("poblacion-upz-3d", "visibility", visibility);
+      // Solo sugiere una inclinación inicial si el mapa sigue plano; si el
+      // usuario ya ajustó el ángulo (slider o arrastre), se respeta tal cual
+      // — la inclinación es libre y no depende de este checkbox.
+      if (popToggle.checked && map.getPitch() === 0) {
+        setPitch(45);
+      }
+    });
+
+    refresh();
   });
 </script>
