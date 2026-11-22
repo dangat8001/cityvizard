@@ -4,7 +4,11 @@ Almacenamiento estático de las capas geoespaciales del proyecto. No hay base
 de datos ni servidor: todo vive como archivos versionados (o ignorados, según
 el caso) dentro de este repositorio.
 
-**Estado actual:** esqueleto vacío (Fase 1). Sin datos todavía.
+**Estado actual (Fase 2):** primera capa procesada disponible.
+
+| Capa | Archivo | Fuente | Licencia | Generado por |
+|---|---|---|---|---|
+| Ciclorutas Bogotá | `processed/ciclorutas.geojson` | [Datos Abiertos Bogotá — IDU](https://datosabiertos.bogota.gov.co/dataset/cicloruta-bogota-d-c) | CC BY 4.0 | `etl/src/fetch_ciclorutas.py` |
 
 ## Convención de carpetas
 
